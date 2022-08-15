@@ -167,7 +167,7 @@ class FisbaReadyBeam():
                 value = 1
             else:
                 value = 0
-            command = self.construct_command(7000, value=value, instance=int(i+1))
+            command = self.construct_command(7000, value=1, instance=int(i+1))
             self.send_command(command)
             command = self.construct_command(7006, value=value, instance=int(i+1))
             self.send_command(command)
