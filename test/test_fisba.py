@@ -7,6 +7,12 @@ def test():
     laser = FisbaReadyBeam(port='/dev/ttyUSB0')
     laser.set_laser([0., 0, 1.])
     time.sleep(5.)
+    laser.set_laser([0., 1., 0.])
+    time.sleep(5.)
+    laser.set_laser([1., 0., 0.])
+    time.sleep(5.)
+    laser.set_laser([1., 1., 1.])
+    time.sleep(5.)
     laser.set_laser([0, 0, 0])
     laser.close()
     assert True == True
