@@ -154,7 +154,7 @@ class FisbaReadyBeam():
         return command.encode()
 
     
-    def set_laser(self, power=[10., 0., 10.]):
+    def set_brightness(self, power=[10., 0., 10.]):
         """
         Function to set laser powers.
 
