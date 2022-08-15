@@ -167,11 +167,11 @@ class FisbaReadyBeam():
                 value = 1
             else:
                 value = 0
-            command = self.construct_command(7000, value=value, instance=int(i+1), address=self.address)
+            command = self.construct_command(7000, value=value, instance=int(i+1))
             self.send_command(command)
-            command = self.construct_command(7006, value=value, instance=int(i+1), address=self.address)
+            command = self.construct_command(7006, value=value, instance=int(i+1))
             self.send_command(command)
-            command = self.construct_command(7013, value=power[i], instance=int(i+1), address=self.address)
+            command = self.construct_command(7013, value=power[i], instance=int(i+1))
             self.send_command(command)
-            command = self.construct_command(7010, instance=int(i+1), address=self.address)
+            command = self.construct_command(7010, instance=int(i+1))
             self.send_command(command)
