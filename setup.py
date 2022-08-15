@@ -19,7 +19,7 @@ setup(
     author="Kaan Akşit",
     author_email="kaanaksit@kaanaksit.com",
     description="A library to control Fisba ReadyBeam laser light sources.",
-    license=read('LICENSE.txt'),
+    license=read('LICENSE'),
     keywords="laser, light, control",
     url="https://github.com/complight/FisbaReadyBeam",
     install_requires=install_requires,
@@ -28,8 +28,8 @@ setup(
     ],
     package_dir={'FisbaReadyBeam': 'FisbaReadyBeam'},
     data_files=[
-        ('', ['LICENSE.txt', 'README.md', 'THANKS.txt', 'requirements.txt'])],
-    long_description=read('short_readme.md'),
+        ('', ['LICENSE', 'README.md', 'THANKS.txt', 'requirements.txt'])],
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Science/Research",
