@@ -25,5 +25,5 @@ If you do not have `pytest` installed in your operating system, try installing v
 pip3 install pytest
 ```
 
-### Issues, Bugs, Comments and suggestion.
+### Issues, Bugs, Comments and suggestion
 Please use the issues section of this repository to reach out to us regarding your comment on this library.
