@@ -4,23 +4,41 @@ from PyCRC.CRCCCITT import CRCCCITT
 
 
 class FisbaReadyBeam():
-
+    """
+    A class to control Fisba's ReadyBeam lasers.
+    """
 
     def __init__(
                  self,
                  port='/dev/ttyUSB0',
                  baud=57600,
                  timeout=1,
+                 address=0,
                 ):
+        """
+        Parameters
+        ----------
+        port           : str
+                         Communication port.
+        baud           : int
+                         Communication baudrate.
+        timeout        : float
+                         Communication time out duration in seconds while sending and receiving.
+        address        : int
+                         Communication address.
+        """
         self.port = port
         self.baud = baud
         self.timeout = timeout
+        self.address = address
         self.sequence = 0
-        self.address = 2
         self.open()
 
 
     def open(self):
+        """
+        Internal function to start the communication link with the module.
+        """
         self.laser = serial.Serial(
                                    self.port,
                                    self.baud,
@@ -34,6 +52,9 @@ class FisbaReadyBeam():
 
 
     def close(self):
+        """
+        Internal function close the communication with the module.
+        """
         self.laser.flushInput()
         self.laser.flushOutput()
         self.laser.close()
@@ -41,6 +62,19 @@ class FisbaReadyBeam():
 
 
     def read(self, size=1):
+        """
+        Internal function to read data.
+
+        Parameters
+        ----------
+        size           : int
+                         Size of the ready in bytes.
+        
+        Returns
+        -------
+        incoming_data  : str
+                         Incoming data.
+        """
         incoming_data = self.laser.read(size=size)
         if len(incoming_data) < size:
             raise Exception('Communication timed out.')
@@ -49,6 +83,19 @@ class FisbaReadyBeam():
 
 
     def send_command(self, command):
+        """
+        Function to send command to the module.
+
+        Parameters
+        ----------
+        command           : str
+                            Command as an encoded string.
+
+        Returns
+        -------
+        response_frame    : str
+                            Response frame as an encoded string.
+        """
         self.laser.reset_output_buffer()
         self.laser.reset_input_buffer()
         self.laser.write(command)
@@ -66,7 +113,24 @@ class FisbaReadyBeam():
         return response_frame
 
 
-    def construct_command(self, parameter_id, value=None, instance=1, address=0):
+    def construct_command(self, parameter_id, value=None, instance=1):
+        """
+        Function to construct a command.
+
+        Parameters
+        ----------
+        parameter_id       : int
+                             Parameter identification (e.g., 7000, 7006). For more, see MeCom protocol specifications 5117c.
+        value              : int
+                             Value as an integer or a floating number. When no value pass, command will only query but not set anything.
+        instance           : int
+                             Instance channels (red:1, green:2, blue:3).
+
+        Returns
+        -------
+        command            : str
+                             Command as an encoded string.
+        """
         command = '#{:02X}'.format(address)
         self.sequence += 1
         command += '{:04X}'.format(self.sequence)
@@ -90,6 +154,14 @@ class FisbaReadyBeam():
 
     
     def set_laser(self, power=[10., 0., 10.]):
+        """
+        Function to set laser powers.
+
+        Parameters
+        ----------
+        power          : list
+                         Laser powers set in percentage using floating numbers. Maximum percentage is 100.5 percent.
+        """
         for i in range(len(power)):
             if power[i] > 0:
                 value = 1
