@@ -1,5 +1,6 @@
 import serial
 import time
+import struct
 from PyCRC.CRCCCITT import CRCCCITT
 
 
@@ -82,7 +83,7 @@ class FisbaReadyBeam():
             return incoming_data
 
 
-    def send_command(self, command):
+    def send_command(self, command, debug=False):
         """
         Function to send command to the module.
 
@@ -90,6 +91,8 @@ class FisbaReadyBeam():
         ----------
         command           : str
                             Command as an encoded string.
+        debug             : bool
+                            Debug flag to observe the command and incoming data under a shell.
 
         Returns
         -------
@@ -107,9 +110,9 @@ class FisbaReadyBeam():
             response_frame += response_byte
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
-#        time.sleep(0.005)
-#        print(command.decode())
-#        print(response_frame.decode())
+        if debug:
+            print(command.decode())
+            print(response_frame.decode())
         return response_frame
 
 
@@ -120,7 +123,7 @@ class FisbaReadyBeam():
         Parameters
         ----------
         parameter_id       : int
-                             Parameter identification (e.g., 7000, 7006). For more, see MeCom protocol specifications 5117c.
+                             Parameter identification (e.g., 7000, 7006). For more, see MeCom protocol specifications 5117c and communication protocol RGB-1171.
         value              : int
                              Value as an integer or a floating number. When no value pass, command will only query but not set anything.
         instance           : int
@@ -142,12 +145,7 @@ class FisbaReadyBeam():
         command += '{:02X}'.format(instance)
         if not isinstance(value, type(None)):
             if isinstance(value, float):
-                if value == 0:
-                    converted_value = '00000000'
-                else:
-                    converted_value = '41F00000'
-                command += converted_value
-#                command += '{:08X}'.format(converted_value) 
+                command += '{:08X}'.format(struct.unpack('<I', struct.pack('<f', value))[0])
             elif isinstance(value, int):
                 command += '{:08X}'.format(1)
         checksum = CRCCCITT().calculate(input_data=command.encode())
