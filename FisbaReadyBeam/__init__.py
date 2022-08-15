@@ -107,9 +107,9 @@ class FisbaReadyBeam():
             response_frame += response_byte
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
-        time.sleep(0.1)
-        print(command.decode())
-        print(response_frame.decode())
+#        time.sleep(0.005)
+#        print(command.decode())
+#        print(response_frame.decode())
         return response_frame
 
 
@@ -142,11 +142,14 @@ class FisbaReadyBeam():
         command += '{:02X}'.format(instance)
         if not isinstance(value, type(None)):
             if isinstance(value, float):
-                converted_value = '41F00000'
+                if value == 0:
+                    converted_value = '00000000'
+                else:
+                    converted_value = '41F00000'
                 command += converted_value
 #                command += '{:08X}'.format(converted_value) 
             elif isinstance(value, int):
-                command += '{:08X}'.format(value)
+                command += '{:08X}'.format(1)
         checksum = CRCCCITT().calculate(input_data=command.encode())
         command += '{:04X}'.format(checksum)
         command += '\r'
@@ -162,6 +165,10 @@ class FisbaReadyBeam():
         power          : list
                          Laser powers set in percentage using floating numbers. Maximum percentage is 100.5 percent.
         """
+        if power[power!=0] > 0:
+            val = 1
+        else:
+            val = 0
         for i in range(len(power)):
             if power[i] > 0:
                 value = 1
