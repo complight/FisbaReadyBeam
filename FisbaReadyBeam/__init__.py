@@ -131,7 +131,7 @@ class FisbaReadyBeam():
         command            : str
                              Command as an encoded string.
         """
-        command = '#{:02X}'.format(address)
+        command = '#{:02X}'.format(self.address)
         self.sequence += 1
         command += '{:04X}'.format(self.sequence)
         if isinstance(value, type(None)):
