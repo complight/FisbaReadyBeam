@@ -120,7 +120,7 @@ class FisbaReadyBeam():
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
         if self.debug:
-            print(command.decode())
+            print(command)
             print(response_frame.decode())
         return response_frame.decode()
 
