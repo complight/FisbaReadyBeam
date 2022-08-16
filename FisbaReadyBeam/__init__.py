@@ -8,6 +8,25 @@ class FisbaReadyBeam():
     """
     A class to control Fisba's ReadyBeam lasers.
     """
+    device_errors = {
+        1:  'Command not available',
+        2:  'Device is busy',
+        3:  'General communication error',
+        4:  'Format error',
+        5:  'Parameter not available',
+        6:  'Parameter is read-only',
+        7:  'Value is out of range',
+        8:  'Instance is not available',
+        9:  'Parameter general error. Device internal failure on this parameter'
+    }
+    device_status = {
+        0:  'Init',
+        1:  'Ready',
+        2:  'Run',
+        3:  'Error',
+        4:  'Bootloader',
+        5:  'Pending Reset'
+    }
 
     def __init__(
                  self,
@@ -15,7 +34,7 @@ class FisbaReadyBeam():
                  baud=57600,
                  timeout=1,
                  address=0,
-                 debug=False
+                 debug=0
                 ):
         """
         Parameters
@@ -50,8 +69,7 @@ class FisbaReadyBeam():
                                   )
         self.laser.flushInput()
         self.laser.flushOutput()
-        command = self.construct_command(104) # Read ID 104 "Device Status"
-        self.send_command(command)
+        self.get_device_status()
         command = self.construct_command(7000, value=1) # Enable digital control
         self.send_command(command)
 
@@ -75,7 +93,7 @@ class FisbaReadyBeam():
         Parameters
         ----------
         size           : int
-                         Size of the ready in bytes.
+                         Size of the read in bytes.
         
         Returns
         -------
@@ -122,11 +140,16 @@ class FisbaReadyBeam():
         while response_byte != cr:
             response_frame += response_byte
             response_byte = self.read(size=1)
-        response_frame = response_frame[1:]
-        if self.debug:
+        response_frame = response_frame[1:] # Trim the hash caracter (#)
+        response_frame = response_frame.decode()
+        if self.debug >= 2:
             print('Sent command: ', command)
-            print('Response:     ', response_frame.decode())
-        return response_frame.decode()
+            print('Response:     ', response_frame)
+        if response_frame[6] == '+': # Detect errors and raise Exception
+            error_nr = int(response_frame[7:9])
+            error = 'Error signaled by device: {0}, {1}'.format(error_nr, self.device_errors[error_nr])
+            raise Exception(error)
+        return response_frame
 
 
     def construct_command(self, parameter_id, value=None, instance=1):
@@ -186,7 +209,17 @@ class FisbaReadyBeam():
             self.send_command(command)
             command = self.construct_command(7013, value=power[i] * 1., instance=int(i+1))
             self.send_command(command)
-        if self.debug:
+        if self.debug >= 1:
+            print('Power set to: ', power)
+        if self.debug >= 2:
             command = self.construct_command(7010)
             print('Check if any laser is on: ', self.send_command(command))
             
+
+    def get_device_status(self):
+        command = self.construct_command(104) # Read ID 104 "Device Status"
+        response = self.send_command(command)
+        status_nr = int(response[13])
+        if self.debug >= 1:
+            print('Status of device: ', self.device_status[status_nr])
+        return status_nr
