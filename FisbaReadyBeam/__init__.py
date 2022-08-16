@@ -15,6 +15,7 @@ class FisbaReadyBeam():
                  baud=57600,
                  timeout=1,
                  address=0,
+                 debug=False
                 ):
         """
         Parameters
@@ -33,6 +34,7 @@ class FisbaReadyBeam():
         self.timeout = timeout
         self.address = address
         self.sequence = 0
+        self.debug = debug
         self.open()
 
 
@@ -48,7 +50,9 @@ class FisbaReadyBeam():
                                   )
         self.laser.flushInput()
         self.laser.flushOutput()
-        command = self.construct_command(2010)
+        command = self.construct_command(104) # Read ID 104 "Device Status"
+        self.send_command(command)
+        command = self.construct_command(7000, value=1) # Enable digital control
         self.send_command(command)
 
 
@@ -56,6 +60,8 @@ class FisbaReadyBeam():
         """
         Internal function close the communication with the module.
         """
+        command = self.construct_command(7000, value=0) # Disable digital control
+        self.send_command(command)
         self.laser.flushInput()
         self.laser.flushOutput()
         self.laser.close()
@@ -83,25 +89,32 @@ class FisbaReadyBeam():
             return incoming_data
 
 
-    def send_command(self, command, debug=False):
+    def send_command(self, command):
         """
         Function to send command to the module.
 
         Parameters
         ----------
         command           : str
-                            Command as an encoded string.
-        debug             : bool
-                            Debug flag to observe the command and incoming data under a shell.
+                            Command as string.
 
         Returns
         -------
         response_frame    : str
-                            Response frame as an encoded string.
+                            Response frame as string.
         """
         self.laser.reset_output_buffer()
         self.laser.reset_input_buffer()
-        self.laser.write(command)
+        # Fill placeholder with sequence number
+        self.sequence += 1
+        command = command.replace('----', '{:04X}'.format(self.sequence))
+        # Calculate checksum
+        crc_calculator = CrcCalculator(Crc16.CCITT)
+        checksum = crc_calculator.calculate_checksum(command.encode())
+        command += '{:04X}'.format(checksum)
+        command += '\r'
+        # Send command and receive answer
+        self.laser.write(command.encode())
         self.laser.flush()
         cr = "\r".encode()
         response_frame = b''
@@ -110,10 +123,10 @@ class FisbaReadyBeam():
             response_frame += response_byte
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
-        if debug:
-            print(command.decode())
-            print(response_frame.decode())
-        return response_frame
+        if self.debug:
+            print('Sent command: ', command)
+            print('Response:     ', response_frame.decode())
+        return response_frame.decode()
 
 
     def construct_command(self, parameter_id, value=None, instance=1):
@@ -132,11 +145,10 @@ class FisbaReadyBeam():
         Returns
         -------
         command            : str
-                             Command as an encoded string.
+                             Command as string.
         """
         command = '#{:02X}'.format(self.address)
-        self.sequence += 1
-        command += '{:04X}'.format(self.sequence)
+        command += '----' # Insert placeholder for sequence number
         if isinstance(value, type(None)):
             command += '?VR'
         elif not isinstance(value, type(None)):
@@ -148,11 +160,8 @@ class FisbaReadyBeam():
                 command += '{:08X}'.format(struct.unpack('<I', struct.pack('<f', value))[0])
             elif isinstance(value, int):
                 command += '{:08X}'.format(1)
-        crc_calculator = CrcCalculator(Crc16.CCITT)
-        checksum = crc_calculator.calculate_checksum(command.encode())
-        command += '{:04X}'.format(checksum)
-        command += '\r'
-        return command.encode()
+        
+        return command
 
     
     def set_brightness(self, power=[10., 0., 10.]):
@@ -173,11 +182,11 @@ class FisbaReadyBeam():
                 value = 1
             else:
                 value = 0
-            command = self.construct_command(7000, value=1, instance=int(i+1))
-            self.send_command(command)
             command = self.construct_command(7006, value=value, instance=int(i+1))
             self.send_command(command)
             command = self.construct_command(7013, value=power[i] * 1., instance=int(i+1))
             self.send_command(command)
-            command = self.construct_command(7010, instance=int(i+1))
-            self.send_command(command)
+        if self.debug:
+            command = self.construct_command(7010)
+            print('Check if any laser is on: ', self.send_command(command))
+            
