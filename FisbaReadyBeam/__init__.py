@@ -217,6 +217,14 @@ class FisbaReadyBeam():
             
 
     def get_device_status(self):
+        """
+        Function to get device status.
+
+        Returns
+        -------
+        status_nr    :  int
+                        Integer representing the device status. See device_status dictionary within this class for more.
+        """
         command = self.construct_command(104) # Read ID 104 "Device Status"
         response = self.send_command(command)
         status_nr = int(response[13])
