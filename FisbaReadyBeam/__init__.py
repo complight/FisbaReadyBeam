@@ -15,7 +15,7 @@ class FisbaReadyBeam():
                  baud=57600,
                  timeout=1,
                  address=0,
-                 debug=True
+                 debug=False
                 ):
         """
         Parameters
@@ -52,12 +52,16 @@ class FisbaReadyBeam():
         self.laser.flushOutput()
         command = self.construct_command(104) # Read ID 104 "Device Status"
         self.send_command(command)
+        command = self.construct_command(7000, value=1) # Enable digital control
+        self.send_command(command)
 
 
     def close(self):
         """
         Internal function close the communication with the module.
         """
+        command = self.construct_command(7000, value=0) # Disable digital control
+        self.send_command(command)
         self.laser.flushInput()
         self.laser.flushOutput()
         self.laser.close()
@@ -120,8 +124,8 @@ class FisbaReadyBeam():
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
         if self.debug:
-            print(command)
-            print(response_frame.decode())
+            print('Sent command: ', command)
+            print('Response:     ', response_frame.decode())
         return response_frame.decode()
 
 
@@ -178,11 +182,11 @@ class FisbaReadyBeam():
                 value = 1
             else:
                 value = 0
-            command = self.construct_command(7000, value=1, instance=int(i+1))
-            self.send_command(command)
             command = self.construct_command(7006, value=value, instance=int(i+1))
             self.send_command(command)
             command = self.construct_command(7013, value=power[i] * 1., instance=int(i+1))
             self.send_command(command)
-            command = self.construct_command(7010, instance=int(i+1))
-            self.send_command(command)
+        if self.debug:
+            command = self.construct_command(7010)
+            print('Check if any laser is on: ', self.send_command(command))
+            
