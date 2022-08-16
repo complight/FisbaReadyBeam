@@ -1,3 +1,2 @@
-PyCRC>=0.9.2
-serial>=0.0.97
-odak>=0.2.0
+crc>=1.2.0
+pyserial>=3.5
