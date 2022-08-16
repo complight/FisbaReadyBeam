@@ -1,7 +1,7 @@
 import serial
 import time
 import struct
-from PyCRC.CRCCCITT import CRCCCITT
+from crc import CrcCalculator, Crc16
 
 
 class FisbaReadyBeam():
@@ -148,7 +148,8 @@ class FisbaReadyBeam():
                 command += '{:08X}'.format(struct.unpack('<I', struct.pack('<f', value))[0])
             elif isinstance(value, int):
                 command += '{:08X}'.format(1)
-        checksum = CRCCCITT().calculate(input_data=command.encode())
+        crc_calculator = CrcCalculator(Crc16.CCITT)
+        checksum = crc_calculator.calculate_checksum(command.encode())
         command += '{:04X}'.format(checksum)
         command += '\r'
         return command.encode()
