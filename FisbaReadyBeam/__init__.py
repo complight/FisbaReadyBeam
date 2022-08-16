@@ -15,6 +15,7 @@ class FisbaReadyBeam():
                  baud=57600,
                  timeout=1,
                  address=0,
+                 debug=True
                 ):
         """
         Parameters
@@ -33,6 +34,7 @@ class FisbaReadyBeam():
         self.timeout = timeout
         self.address = address
         self.sequence = 0
+        self.debug = debug
         self.open()
 
 
@@ -83,7 +85,7 @@ class FisbaReadyBeam():
             return incoming_data
 
 
-    def send_command(self, command, debug=False):
+    def send_command(self, command):
         """
         Function to send command to the module.
 
@@ -91,8 +93,6 @@ class FisbaReadyBeam():
         ----------
         command           : str
                             Command as string.
-        debug             : bool
-                            Debug flag to observe the command and incoming data under a shell.
 
         Returns
         -------
@@ -119,7 +119,7 @@ class FisbaReadyBeam():
             response_frame += response_byte
             response_byte = self.read(size=1)
         response_frame = response_frame[1:]
-        if debug:
+        if self.debug:
             print(command.decode())
             print(response_frame.decode())
         return response_frame.decode()
