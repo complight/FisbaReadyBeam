@@ -48,7 +48,7 @@ class FisbaReadyBeam():
                                   )
         self.laser.flushInput()
         self.laser.flushOutput()
-        command = self.construct_command(2010)
+        command = self.construct_command(104) # Read ID 104 "Device Status"
         self.send_command(command)
 
 
