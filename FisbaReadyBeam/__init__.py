@@ -170,19 +170,21 @@ class FisbaReadyBeam():
         command            : str
                              Command as string.
         """
+        parameter = ''
+        
         command = '#{:02X}'.format(self.address)
         command += '----' # Insert placeholder for sequence number
         if isinstance(value, type(None)):
             command += '?VR'
-        elif not isinstance(value, type(None)):
+        else:
             command += 'VS'
+            if isinstance(value, float):
+                parameter = '{:08X}'.format(struct.unpack('<I', struct.pack('<f', value))[0])
+            elif isinstance(value, int):
+                parameter = '{:08X}'.format(value)       
         command += '{:04X}'.format(parameter_id)
         command += '{:02X}'.format(instance)
-        if not isinstance(value, type(None)):
-            if isinstance(value, float):
-                command += '{:08X}'.format(struct.unpack('<I', struct.pack('<f', value))[0])
-            elif isinstance(value, int):
-                command += '{:08X}'.format(1)
+        command += parameter
         
         return command
 
