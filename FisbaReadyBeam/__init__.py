@@ -1,7 +1,7 @@
 import serial
 import time
 import struct
-from crc import CrcCalculator, Crc16
+from crc import Calculator, Crc16
 
 
 class FisbaReadyBeam():
@@ -127,8 +127,8 @@ class FisbaReadyBeam():
         self.sequence += 1
         command = command.replace('----', '{:04X}'.format(self.sequence))
         # Calculate checksum
-        crc_calculator = CrcCalculator(Crc16.CCITT)
-        checksum = crc_calculator.calculate_checksum(command.encode())
+        crc_calculator = Calculator(Crc16.CCITT)
+        checksum = crc_calculator.checksum(command.encode())
         command += '{:04X}'.format(checksum)
         command += '\r'
         # Send command and receive answer
