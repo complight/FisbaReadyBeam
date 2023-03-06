@@ -5,12 +5,12 @@ from FisbaReadyBeam import FisbaReadyBeam
 
 def test():
     laser = FisbaReadyBeam(port='/dev/ttyUSB0')
-    laser.set_brightness([5., 0., 0.])
-    time.sleep(3.)
-    laser.set_brightness([0., 5., 0.])
-    time.sleep(3.)
-    laser.set_brightness([0., 0., 5.])
-    time.sleep(3.)
+    laser.set_brightness([10., 0., 0.])
+    time.sleep(1.)
+    laser.set_brightness([0., 10., 0.])
+    time.sleep(1.)
+    laser.set_brightness([0., 0., 10.])
+    time.sleep(1.)
     laser.close()
     assert True == True
 
