@@ -8,6 +8,16 @@ At this time, this code is only tested on an `Ubuntu 22.04` operating system.
 For installing this library using the following syntax in a Linux shell:
 
 ```bash
+git clone https://github.com/complight/FisbaReadyBeam.git
+cd FisbaReadyBeam
+pip3 install -e .
+```
+
+or
+
+```bash
+git clone https://github.com/complight/FisbaReadyBeam.git
+cd FisbaReadyBeam
 pip3 install -r requirements.txt
 sudo python3 setup.py install
 ```
