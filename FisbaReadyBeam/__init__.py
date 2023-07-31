@@ -143,11 +143,11 @@ class FisbaReadyBeam():
         while response_byte != cr:
             response_frame += response_byte
             response_byte = self.read(size=1)
-        response_frame = response_frame[1:] # Trim the hash caracter (#)
-        response_frame = response_frame.decode()
         if self.debug >= 2:
             print('Sent command: ', command)
             print('Response:     ', response_frame)
+        response_frame = response_frame[1:] # Trim the hash caracter (#)
+        response_frame = response_frame.decode()
         if response_frame[6] == '+': # Detect errors and raise Exception
             error_nr = int(response_frame[7:9])
             error = 'Error signaled by device: {0}, {1}'.format(error_nr, self.device_errors[error_nr])
@@ -190,7 +190,6 @@ class FisbaReadyBeam():
         command += '{:04X}'.format(parameter_id)
         command += '{:02X}'.format(instance)
         command += parameter
-        
         return command
 
     
