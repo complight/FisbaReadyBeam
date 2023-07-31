@@ -70,6 +70,7 @@ class FisbaReadyBeam():
         self.laser.flushInput()
         self.laser.flushOutput()
         self.get_device_status()
+        self.get_device_type()
         command = self.construct_command(7000, value=1) # Enable digital control
         self.send_command(command)
 
@@ -131,6 +132,8 @@ class FisbaReadyBeam():
         checksum = crc_calculator.checksum(command.encode())
         command += '{:04X}'.format(checksum)
         command += '\r'
+        if self.debug:
+            print('Command sent:', command)
         # Send command and receive answer
         self.laser.write(command.encode())
         self.laser.flush()
@@ -149,6 +152,8 @@ class FisbaReadyBeam():
             error_nr = int(response_frame[7:9])
             error = 'Error signaled by device: {0}, {1}'.format(error_nr, self.device_errors[error_nr])
             raise Exception(error)
+        if self.debug:
+            print('Command received:', response_frame)
         return response_frame
 
 
@@ -231,5 +236,22 @@ class FisbaReadyBeam():
         response = self.send_command(command)
         status_nr = int(response[13])
         if self.debug >= 1:
-            print('Status of device: ', self.device_status[status_nr])
+            print('Device status: ', self.device_status[status_nr])
         return status_nr
+
+
+    def get_device_type(self):
+        """
+        Function to get device type.
+
+        Returns
+        -------
+        device_type    :  int
+                          Integer representing the device type.
+                          It should return 1171, which means RGB-1171.
+        """
+        command = self.construct_command(100) # Read ID 100 "Device type"
+        device_type = self.send_command(command)
+        if self.debug >= 1:
+            print('Device type: ',  device_type)
+        return device_type
