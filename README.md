@@ -1,6 +1,7 @@
 # Description
 A libray to control the [Fisba ReadyBeam laser light sources](https://www.fisba.com/en/readybeam-multicolor-laser-module).
-At this time, this code is only tested on an `Ubuntu 22.04` operating system.
+
+The library and its dependencies are cross-platform. At this time however, this code is only tested on an `Ubuntu 22.04` operating system.
 
 ## Getting Started
 
